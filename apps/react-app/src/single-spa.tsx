@@ -12,26 +12,39 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import singleSpaReact from 'single-spa-react';
+import { createRoot, Root } from 'react-dom/client';
 import App from './App';
 
-// Let TypeScript infer the type from singleSpaReact — avoids AppProps generics mismatch.
-const lifecycles = singleSpaReact({
-  React,
-  ReactDOMClient: ReactDOM,
-  rootComponent: App,
-  errorBoundary(err: Error): React.ReactElement {
-    return React.createElement(
-      'div',
-      { style: { padding: '2rem', color: 'crimson' } },
-      React.createElement('h3', null, 'React MFE Error'),
-      React.createElement('pre', null, err.message),
-    );
-  },
-});
+let root: Root | undefined;
+let containerEl: HTMLElement | undefined;
 
-export const bootstrap = lifecycles.bootstrap;
-export const mount = lifecycles.mount;
-export const unmount = lifecycles.unmount;
+export async function bootstrap(): Promise<void> {
+  // nothing to do — createRoot happens in mount
+}
+
+export async function mount(props: { domElement?: HTMLElement; name?: string }): Promise<void> {
+  const appName = props.name ?? 'react-app';
+  const id = `single-spa-application:${appName}`;
+
+  containerEl =
+    props.domElement ??
+    (document.getElementById(id) as HTMLElement) ??
+    (() => {
+      const el = document.createElement('div');
+      el.id = id;
+      document.body.appendChild(el);
+      return el;
+    })();
+
+  root = createRoot(containerEl);
+  root.render(React.createElement(App));
+}
+
+export async function unmount(): Promise<void> {
+  if (root) {
+    root.unmount();
+    root = undefined;
+  }
+  containerEl = undefined;
+}
 
