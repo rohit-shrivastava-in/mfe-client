@@ -30,9 +30,12 @@ const ANGULAR_URL = isDev
 //   localStorage.setItem('app_version', 'angular')  then reload.
 // ---------------------------------------------------------------------------
 type AppVersion = 'react' | 'angular';
-const stored = localStorage.getItem('app_version');
-if (!stored) localStorage.setItem('app_version', 'react');
-const appVersion: AppVersion = (stored ?? 'react') as AppVersion;
+const appVersion: AppVersion =
+  (localStorage.getItem('app_version') as AppVersion) ?? 'react';
+
+if (!localStorage.getItem('app_version')) {
+  localStorage.setItem('app_version', 'react');
+}
 
 // ---------------------------------------------------------------------------
 // Lazy lifecycle loaders
@@ -65,6 +68,4 @@ registerApplication({
 // ---------------------------------------------------------------------------
 start({ urlRerouteOnly: true });
 
-if (isDev) {
-  console.info(`[root-config] Active MFE: "${appVersion}" | mode: DEV`);
-}
+console.info(`[root-config] Active MFE: "${appVersion}" | mode: ${isDev ? 'DEV' : 'PROD'}`);

@@ -1,31 +1,42 @@
-.mfe-container {
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
   padding: 2rem;
-  font-family: system-ui, sans-serif;
+  text-align: center;
 }
 
-.mfe-container h1 {
-  color: #61dafb;
-  margin-bottom: 0.5rem;
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-.mfe-container .subtitle {
-  margin-bottom: 1rem;
-  color: #888;
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
 }
 
 .card {
-  display: inline-block;
-  padding: 1rem 2rem;
-  background: #1a1a2e;
-  border-radius: 8px;
+  padding: 2em;
 }
 
-.card button {
-  margin-top: 0.5rem;
-  padding: 0.4rem 1.2rem;
-  background: #61dafb;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
+.read-the-docs {
+  color: #888;
 }

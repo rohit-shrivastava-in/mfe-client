@@ -25,6 +25,8 @@ export default defineConfig({
     outDir: resolve(__dirname, '../../dist/react-app'),
     emptyOutDir: true,
     rollupOptions: {
+      // Bundle everything — root-config needs no shared import maps.
+      external: [],
       output: {
         // Force .js extension for consistent file naming.
         entryFileNames: '[name].js',
