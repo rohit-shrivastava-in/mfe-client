@@ -37,8 +37,7 @@ export default defineConfig({
     outDir: resolve(__dirname, '../../dist/angular-app'),
     emptyOutDir: true,
     rollupOptions: {
-      // Bundle everything — no external deps so root-config needs no import maps.
-      external: [],
+
       output: {
         // Force .js extension (ESM format) for consistent file naming.
         entryFileNames: '[name].js',

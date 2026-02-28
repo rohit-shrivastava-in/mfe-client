@@ -17,6 +17,8 @@
     "build:angular": "npm run build:mfe --workspace=apps/angular-app",
     "build:react": "npm run build:mfe --workspace=apps/react-app",
     "build:root": "npm run build --workspace=apps/root-config",
+    "watch:angular": "npm run watch:mfe --workspace=apps/angular-app",
+    "watch:react": "npm run watch:mfe --workspace=apps/react-app",
     "preview": "npx serve dist -p 9000"
   },
   "devDependencies": {
