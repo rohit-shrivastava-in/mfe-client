@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MFE Root Config</title>
+
+  <!--
+      React Fast Refresh globals.
+
+      @vitejs/plugin-react injects the following guards into EVERY transformed
+      JSX/TSX file (including App.tsx):
+
+          if (!window.__vite_plugin_react_preamble_installed__) throw ...
+          const sig = window.$RefreshSig$();
+
+      Normally Vite sets these up via a <script> it injects into the MFE's own
+      index.html. Root-config loads the React MFE via a cross-origin dynamic
+      import(), completely bypassing the MFE's index.html — so the globals are
+      never initialised and the first JSX file to run throws.
+
+      Fix: set them here as no-ops before any ES module executes.
+      In a production React build these guards are stripped entirely (NODE_ENV
+      check), so this script is harmless in prod.
+    -->
+  <script>
+    window.$RefreshReg$ = () => { };
+    window.$RefreshSig$ = () => (type) => type;
+    window.__vite_plugin_react_preamble_installed__ = true;
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+    }
+
+    #single-spa-application\\:angular-app,
+    #single-spa-application\\:react-app {
+      min-height: 100vh;
+    }
+
+    #mfe-nav {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+
+    #mfe-nav span {
+      margin-right: auto;
+      font-weight: 600;
+    }
+
+    #mfe-nav button {
+      padding: 0.4rem 1rem;
+      border: 1px solid #6c7086;
+      border-radius: 4px;
+      background: transparent;
+      color: #cdd6f4;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #mfe-nav button.active {
+      background: #89b4fa;
+      color: #1e1e2e;
+      border-color: #89b4fa;
+    }
+
+    #mfe-nav button:hover:not(.active) {
+      background: #313244;
+    }
+  </style>
+</head>
+
+<body>
+  <nav id="mfe-nav">
+    <span>MFE Shell</span>
+    <button id="btn-react" onclick="switchApp('react')">React</button>
+    <button id="btn-angular" onclick="switchApp('angular')">Angular</button>
+  </nav>
+
+  <!-- single-spa mounts micro-frontends here automatically using app names as IDs -->
+
+  <script type="module" src="./main.ts"></script>
+  <script>
+    function switchApp(app) {
+      localStorage.setItem('app_version', app);
+      location.reload();
+    }
+    // Highlight active button
+    const active = localStorage.getItem('app_version') || 'react';
+    document.getElementById('btn-' + active)?.classList.add('active');
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "root-config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 9000"
+  },
+  "dependencies": {
+    "single-spa": "^6.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0"
+  }
+}

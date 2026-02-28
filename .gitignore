@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+apps/*/node_modules/
+
+# Build output
+dist/
+apps/*/dist/
+
+# Vite cache
+.vite/
+apps/*/.vite/
+
+# Angular CLI cache
+.angular/
+apps/angular-app/.angular/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
