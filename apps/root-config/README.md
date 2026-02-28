@@ -1,4 +1,4 @@
-# root-config — single-spa Shell Application
+# root-config ï¿½ single-spa Shell Application
 
 Created entirely by hand (no CLI). Acts as the host page that loads and
 orchestrates the Angular and React micro-frontends.
@@ -181,7 +181,7 @@ Full contents:
 >
 > **Why a classic `<script>` tag and not a module script:**
 > The fix must define the globals BEFORE the ES module graph evaluates. ES modules
-> (`type="module"`) are always deferred — they run after the HTML document is parsed.
+> (`type="module"`) are always deferred ï¿½ they run after the HTML document is parsed.
 > Classic `<script>` tags run synchronously as the parser encounters them. By
 > placing this classic script in `<head>`, the globals are set before `main.ts`
 > (or any module it imports) executes.
@@ -217,10 +217,7 @@ function switchApp(name) {
 ### NEW FILE: `src/main.ts`
 
 ```ts
-import { registerApplication, start } from 'single-spa';
-
-const appVersion = (): string =>
-  localStorage.getItem('app_version') ?? 'react';
+import { registerApplication, start, LifeCycles } from 'single-spa';
 
 const isDev = import.meta.env.DEV;
 
@@ -232,24 +229,34 @@ const ANGULAR_URL = isDev
   ? 'http://localhost:4201/src/single-spa.ts'
   : '/angular-app/single-spa.js';
 
-async function loadReact() {
+// Resolved once at startup â€” MFE switching requires a page reload.
+type AppVersion = 'react' | 'angular';
+const appVersion: AppVersion =
+  (localStorage.getItem('app_version') as AppVersion) ?? 'react';
+
+// Persist the default so the value is always present in localStorage.
+if (!localStorage.getItem('app_version')) {
+  localStorage.setItem('app_version', 'react');
+}
+
+async function loadReact(): Promise<LifeCycles> {
   return import(/* @vite-ignore */ REACT_URL);
 }
 
-async function loadAngular() {
+async function loadAngular(): Promise<LifeCycles> {
   return import(/* @vite-ignore */ ANGULAR_URL);
 }
 
 registerApplication({
   name: 'react-app',
   app: loadReact,
-  activeWhen: () => appVersion() === 'react',
+  activeWhen: () => appVersion === 'react',
 });
 
 registerApplication({
   name: 'angular-app',
   app: loadAngular,
-  activeWhen: () => appVersion() === 'angular',
+  activeWhen: () => appVersion === 'angular',
 });
 
 start({ urlRerouteOnly: true });
@@ -266,13 +273,24 @@ start({ urlRerouteOnly: true });
 > `Could not auto-determine entry point from dynamic import`.
 > The `@vite-ignore` comment suppresses that warning.
 >
-> **Why `activeWhen: () => appVersion() === 'react'` (function, not path):**
+> **Why `LifeCycles` type import:**
+> Annotating the return type of `loadReact` / `loadAngular` as `Promise<LifeCycles>`
+> gives TypeScript full type coverage on bootstrap/mount/unmount and catches
+> mis-typed loader functions at compile time.
+>
+> **Why `appVersion` is a `const` (not a function):**
+> The active MFE is decided once when the page loads based on `localStorage`.
+> Switching apps requires setting `localStorage.app_version` and reloading the
+> page. Making it a function would re-read localStorage on every single-spa
+> routing tick, which is unnecessary and misleading.
+>
+> **Why `activeWhen: () => appVersion === 'react'` (function, not path):**
 > single-spa's `activeWhen` can accept a path prefix string or a function that
 > returns a boolean. This app uses `localStorage` instead of the URL path to select
 > the active MFE, so a path prefix cannot be used. A function is required.
 >
-> **Why `start({ urlRerouteOnly: true })`:**
+> **Why `start({ urlRerouteOnly: true })`:
 > This option tells single-spa not to trigger a re-evaluation on every popstate
-> event that changes a hash or search param — only on actual page navigation.
+> event that changes a hash or search param ï¿½ only on actual page navigation.
 > Since the app uses `localStorage` (not URL paths) for routing, this prevents
 > unnecessary re-evaluations on unrelated browser history events.

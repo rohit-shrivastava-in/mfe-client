@@ -1,4 +1,4 @@
-# react-app — React 19 Micro-Frontend
+# react-app ï¿½ React 19 Micro-Frontend
 
 Scaffolded with Vite, then modified to work as a single-spa micro-frontend.
 
@@ -73,7 +73,7 @@ react({
 > **Why:** Vite's React plugin automatically injects React Fast Refresh (HMR)
 > guard code at the top of every `.tsx` file. That injected code calls
 > `window.$RefreshSig$` which is only defined when Vite's HMR preamble has been
-> loaded into the page — which only happens when Vite itself serves `index.html`.
+> loaded into the page ï¿½ which only happens when Vite itself serves `index.html`.
 >
 > When root-config (a different server) cross-origin imports `single-spa.tsx`,
 > the HMR preamble is never injected, so `$RefreshSig$ is not defined` is thrown.
@@ -92,6 +92,13 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
+
+  // Replace Node.js globals that React and other packages reference but that
+  // are not available in the browser when bundled as an ESM library.
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV ?? 'production'),
+  },
+
   build: {
     lib: {
       entry: resolve(__dirname, 'src/single-spa.tsx'),
@@ -114,13 +121,21 @@ export default defineConfig({
 
 > **Why a separate config for MFE production build:**
 > The default `vite.config.ts` build creates a full SPA with `index.html`.
-> single-spa loads the React app as a standalone ES module — not an SPA. Vite's
+> single-spa loads the React app as a standalone ES module ï¿½ not an SPA. Vite's
 > `build.lib` mode creates a plain JavaScript module with no HTML entry point.
 >
 > **Why `entryFileNames: '[name].js'` (no hash):**
 > root-config's `main.ts` hard-codes the production path as
 > `/react-app/single-spa.js`. A hashed filename would break that path on every
 > rebuild.
+>
+> **Why `define: { 'process.env.NODE_ENV': ... }`:**
+> React (and many other npm packages) guard development-only code with
+> `if (process.env.NODE_ENV !== 'production')`. `process` is a Node.js global
+> that does not exist in the browser. Vite's application build replaces it
+> automatically, but `build.lib` (library) mode does not. Without the `define`
+> block the browser throws `ReferenceError: process is not defined` when the
+> bundle is loaded by single-spa.
 
 ---
 
@@ -132,6 +147,7 @@ import ReactDOM from 'react-dom/client';
 import singleSpaReact from 'single-spa-react';
 import App from './App';
 
+// Let TypeScript infer the type from singleSpaReact â€” avoids AppProps generics mismatch.
 const lifecycles = singleSpaReact({
   React,
   ReactDOMClient: ReactDOM,
@@ -139,16 +155,14 @@ const lifecycles = singleSpaReact({
   errorBoundary(err: Error): React.ReactElement {
     return React.createElement(
       'div',
-      { style: { color: 'red', padding: '1rem' } },
-      React.createElement('strong', null, 'React MFE Error'),
+      { style: { padding: '2rem', color: 'crimson' } },
+      React.createElement('h3', null, 'React MFE Error'),
       React.createElement('pre', null, err.message),
     );
   },
 });
 
-export const bootstrap = lifecycles.bootstrap;
-export const mount     = lifecycles.mount;
-export const unmount   = lifecycles.unmount;
+export const { bootstrap, mount, unmount } = lifecycles;
 ```
 
 > **Why `single-spa-react` instead of manual lifecycles:**
