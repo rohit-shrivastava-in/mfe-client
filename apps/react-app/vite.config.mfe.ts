@@ -15,6 +15,12 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [react()],
 
+  // Replace Node.js globals that are referenced by React and other packages
+  // but are not available in the browser when bundled as an ESM library.
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV ?? 'production'),
+  },
+
   build: {
     lib: {
       entry: resolve(__dirname, 'src/single-spa.tsx'),
